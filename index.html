@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HyperScan v4.0 - Advanced Real Boot Engine Emulator">
+    <meta name="theme-color" content="#0066ff">
+    
+    <title>HyperScan v4.0 – Real Boot Engine (BIOS → CDROM)</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ========== HEADER ========== -->
+    <header class="header-main">
+        <div class="header-top">
+            <div class="header-branding">
+                <h1>🎮 HyperScan v4.0</h1>
+                <span class="header-subtitle">Real Boot Engine</span>
+            </div>
+            <div class="header-info">
+                <div class="status-badge" id="status-badge">
+                    <span class="status-led" id="status-led"></span>
+                    <span id="status-text">PRONTO</span>
+                </div>
+                <div class="cpu-info">
+                    <span class="label">CPU Freq:</span>
+                    <span id="cpu-freq-display">0 MHz</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== TOOLBAR CAROUSEL ========== -->
+        <div class="toolbar-wrapper">
+            <button class="nav-arrow" onclick="scrollMenu(-1)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+
+            <div class="toolbar-carousel" id="toolbar-scroll">
+                
+                <!-- FILE GROUP -->
+                <div class="tool-group">
+                    <label class="custom-file-upload" title="Carregar ROM/ISO (Ctrl+O)">
+                        <input type="file" id="rom-upload" accept=".bin,.rom,.iso,.img,.cue">
+                        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>LOAD</span>
+                    </label>
+                </div>
+
+                <!-- CONTROL GROUP -->
+                <div class="tool-group">
+                    <button id="btn-run" class="btn-icon" title="Play/Pause (Space)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span>RUN</span>
+                    </button>
+                    <button id="btn-step" class="btn-icon" title="Próxima instrução (Ctrl+S)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 4 12 14.01 12 14"></polyline>
+                            <path d="M22 4h-7"></path>
+                            <path d="M22 4v7"></path>
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <span>STEP</span>
+                    </button>
+                    <button id="btn-reset" class="btn-icon" title="Reiniciar (Ctrl+R)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <path d="M20.49 15a9 9 0 1 1-2-8.83"></path>
+                        </svg>
+                        <span>RESET</span>
+                    </button>
+                </div>
+
+                <!-- BOOT GROUP -->
+                <div class="tool-group">
+                    <button id="btn-boot-bios" class="btn-icon primary" title="Inicia sequência de boot">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1v22M4.22 4.22l15.56 15.56M1 12h22M4.22 19.78L19.78 4.22"></path>
+                        </svg>
+                        <span>BOOT</span>
+                    </button>
+                    <button id="btn-auto-run" class="btn-icon" title="Auto-run BIOS">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <path d="M12 6v6M12 12v6"></path>
+                        </svg>
+                        <span>AUTO</span>
+                    </button>
+                </div>
+
+                <!-- DEBUG GROUP -->
+                <div class="tool-group">
+                    <button id="btn-debug-toggle" class="btn-icon" title="Toggle Debug (Ctrl+D)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"></path>
+                        </svg>
+                        <span>DEBUG</span>
+                    </button>
+                    <label class="switch-label" title="Trace Mode">
+                        <input type="checkbox" id="trace-toggle">
+                        <span class="toggle-slider"></span>
+                        <span>TRACE</span>
+                    </label>
+                </div>
+
+                <!-- CDROM v4.0 GROUP -->
+                <div class="tool-group">
+                    <button id="btn-cdrom-info" class="btn-icon" title="Info do CD-ROM">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
+                        <span>INFO</span>
+                    </button>
+                    <button id="btn-cdrom-list" class="btn-icon" title="Lista arquivos">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path>
+                        </svg>
+                        <span>FILES</span>
+                    </button>
+                    <button id="btn-cdrom-validate" class="btn-icon" title="Valida integridade">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>VALID</span>
+                    </button>
+                    <button id="btn-cdrom-status" class="btn-icon" title="Status do CD-ROM">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="2" x2="12" y2="22"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        <span>STATUS</span>
+                    </button>
+                </div>
+
+                <!-- MEMORY & HW GROUP -->
+                <div class="tool-group">
+                    <button id="btn-memory-dump" class="btn-icon" title="Memory dump">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="9" y1="9" x2="15" y2="9"></line>
+                            <line x1="9" y1="15" x2="15" y2="15"></line>
+                        </svg>
+                        <span>DUMP</span>
+                    </button>
+                    <button id="btn-hw-status" class="btn-icon" title="Hardware status">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="2" y1="20" x2="22" y2="20"></line>
+                        </svg>
+                        <span>HW</span>
+                    </button>
+                    <button id="btn-cpu-regs" class="btn-icon" title="CPU registers">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                        </svg>
+                        <span>CPU</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <button class="nav-arrow" onclick="scrollMenu(1)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- ========== MAIN DISPLAY ========== -->
+    <main class="main-container">
+        <div class="vdu-wrapper">
+            <canvas id="display" class="vdu-screen" width="320" height="224"></canvas>
+            <div class="vdu-scanlines"></div>
+            <div class="vdu-glow"></div>
+        </div>
+    </main>
+
+    <!-- ========== TERMINAL ========== -->
+    <section class="terminal-section">
+        <div class="terminal-header">
+            <span class="terminal-title">LUNA CONSOLE v3.0</span>
+            <div class="terminal-controls">
+                <button class="term-btn" id="btn-clear-console" title="Limpar console">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 4 21 4"></polyline>
+                        <path d="M19 4v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="console-out" class="console-output"></div>
+        <div id="autocomplete-box" class="autocomplete-box"></div>
+        
+        <div class="input-wrapper">
+            <span class="prompt">emu ›</span>
+            <input 
+                type="text" 
+                id="console-input" 
+                class="console-input"
+                autofocus 
+                spellcheck="false" 
+                autocomplete="off" 
+                placeholder="Type 'help' para comandos...">
+        </div>
+    </section>
+
+    <!-- ========== SCRIPTS - ORDEM CRÍTICA ========== -->
+
+    <!-- Memory Layer -->
+    <script src="hyperscan/memory/memoryregion.js"></script>
+    <script src="hyperscan/memory/arraymemoryregion.js"></script>
+    <script src="hyperscan/memory/emptymemoryregion.js"></script>
+    <script src="hyperscan/memory/segmentedmemoryregion.js"></script>
+
+    <!-- I/O Layer -->
+    <script src="hyperscan/io/io.js"></script>
+    <script src="hyperscan/io/uart.js"></script>
+    <script src="hyperscan/io/vdu.js"></script>
+
+    <!-- Peripherals Layer -->
+    <script src="hyperscan/timer.js"></script>
+    <script src="hyperscan/interrupt.js"></script>
+    <script src="spu.js"></script>
+
+    <!-- CDROM v4.0 -->
+    <script src="cdrom/cdrom_v4.0_parte1.js"></script>
+    <script src="cdrom/cdrom_v4.0_parte2.js"></script>
+    <script src="cdrom/cdrom_v4.0_parte3.js"></script>
+    <script src="cdrom/cdrom_v4.0_parte4.js"></script>
+
+    <!-- CPU -->
+    <script src="hyperscan/disasm.js"></script>
+    <script src="hyperscan/cpu/cpu_part1.js"></script>
+    <script src="hyperscan/cpu/cpu_part2.js"></script>
+    <script src="hyperscan/cpu/cpu_part3.js"></script>
+
+    <!-- Main Engine -->
+    <script src="main.js"></script>
+
+    <!-- Debug Tools -->
+    <script src="hyperscan/debugger.js"></script>
+    <script src="hyperscan/integration.js"></script>
+
+    <!-- Console & Test -->
+    <script src="LunaConsole.js"></script>
+    <script src="test-boot.js"></script>
+
+    <script>
+        function scrollMenu(dir) {
+            const toolbar = document.getElementById('toolbar-scroll');
+            toolbar.scrollBy({ left: dir * 250, behavior: 'smooth' });
+        }
+
+        function updateStatusLED(state) {
+            const led = document.getElementById('status-led');
+            const text = document.getElementById('status-text');
+            
+            led.className = 'status-led';
+            
+            const states = {
+                1: { class: 'running', text: '▶️ RUNNING' },
+                2: { class: 'paused', text: '⏸️ PAUSED' },
+                3: { class: 'error', text: '❌ ERROR' },
+                0: { class: '', text: '⏹️ STOPPED' }
+            };
+            
+            const s = states[state] || states[0];
+            if (s.class) led.classList.add(s.class);
+            text.textContent = s.text;
+        }
+
+        setInterval(() => {
+            if (window.emu) updateStatusLED(window.emu.state);
+        }, 100);
+
+        console.log("✓ HyperScan v4.0 Modern Edition - Scripts carregados");
+    </script>
+
+</body>
+<script>
+(function () {
+    const btn = document.getElementById("btn-clear-console");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+        if (window.luna && window.luna.commands && window.luna.commands.clear) {
+            window.luna.commands.clear.call(window.luna);
+        }
+    });
+})();
+</script>
+</html>
