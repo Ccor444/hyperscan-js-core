@@ -1,4 +1,5 @@
 🎮 HyperScan JS Core
+https://ccor444.github.io/hyperscan-js-core/
 
 HyperScan JS Core is an experimental but advanced JavaScript-based hardware emulator focused on the Sunplus SPG290 / SPCE3200 32-bit RISC architecture. It is designed to run directly in the browser, featuring a fully integrated interactive debugger, hardware abstraction, and a custom terminal known as Luna Console.
 
